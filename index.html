@@ -324,13 +324,120 @@
         $.ajax({
             type: 'POST',
             crossOrigin: true,
-            url: 'https://abcdeffhijklmnop-dev-ed.my.salesforce.com/services/oauth2/token',
+            url: 'https://protocomdev-dev-ed.my.salesforce.com/services/oauth2/token',
             dataType: 'json',
             cache :false,
-            data : {"grant_type":"refresh_token","client_id":"3MVG9d8..z.hDcPIswHuvfI5yAimSNoHL7zt7ZMkzeordhJ1jo_ogvUAE1tpRUkBjt0ybcsCCoU4V7kbLsfUs", "client_secret":"3FC0B941D16A94FA16B3D639B42EFAE6003E666279856FAFD863E22A39D90523","refresh_token":"aPrxshT49BthlzI3ml_TFUc6kef_ZBAhAqFZUFCLNMrk8Sfc4FU83LfabWrCTOdLoeGhIdu02A=="},
+            data : {"grant_type":"refresh_token","client_id":"3MVG9pRzvMkjMb6nsLsmTx_FqB4dQ93IcaapZkUvbEw9B7jwftQZeU.SXpH6bVf4C0uUtZfA8hgvk9EE4vryy", "client_secret":"F476E3521CAC6A25DEF4B55A6E7A4BA120C5B593CA7C340014838C9F110E7394","refresh_token":"5Aep861mdLLi91HqFfCpXYtQXRaOgcHsK1gi36_dL.vrrxEbJ4cNXYleGM0KzF6TX81pNGq0Siw8n_Om73G64gz"},
             success : function (connectData) {
-                console.log('アクセストークン' + connectData.access_token);
+                var accToken = 'Bearer ' + connectData.access_token;
+                $.ajax({
+                    type: 'GET',
+                    crossOrigin: true,
+                    url: 'https://protocomdev-dev-ed.my.salesforce.com/services/apexrest/Case/A0000001',
+                    dataType: 'json',
+                    cache :false,
+                    headers: {"Authorization" : accToken},
+                    success : function (res) {
+                        // データを取得できた場合
+                        if(res.length != 0){
+                            // template要素を取得
+                            var template = document.getElementById('template');
+                            // データの数分繰り返し
+                            for(var i = 0; i < res.length; i++){
+                                // template要素の内容を複製
+                                var clone = template.content.cloneNode(true);
+                                // 複製したtemplate要素にデータを挿入
+                                clone.querySelector('.CreatedDate').textContent = res[i].CreatedDate;
+                                clone.querySelector('.Priority').textContent = res[i].Priority;
+                                clone.querySelector('.Subject').textContent = res[i].Subject;
+                                clone.querySelector('.Description').textContent = res[i].Description;
+                                // div#containerの中に追加
+                                document.getElementById('pastCase').appendChild(clone);
+                              }
+                            }
+                          },
+                    error : function (data, errorThrown,status) {
+                        
+                    }
+                })
+                
+              },
+            error : function (data, errorThrown,status) {
             }
         });
-     }
+      }
+
+    function send() {
+        // アクセストークン取得（リフレッシュトークンフロー） Ajax
+        $.ajax({
+            type: 'POST',
+            crossOrigin: true,
+            url: 'https://protocomdev-dev-ed.my.salesforce.com/services/oauth2/token',
+            dataType: 'json',
+            cache :false,
+            data : {"grant_type":"refresh_token","client_id":"3MVG9pRzvMkjMb6nsLsmTx_FqB4dQ93IcaapZkUvbEw9B7jwftQZeU.SXpH6bVf4C0uUtZfA8hgvk9EE4vryy", "client_secret":"F476E3521CAC6A25DEF4B55A6E7A4BA120C5B593CA7C340014838C9F110E7394","refresh_token":"5Aep861mdLLi91HqFfCpXYtQXRaOgcHsK1gi36_dL.vrrxEbJ4cNXYleGM0KzF6TX81pNGq0Siw8n_Om73G64gz"},
+            success : function (connectData) {
+              // アクセストークン
+                var accToken = 'Bearer ' + connectData.access_token;
+                // 優先度を取得
+                const PriorityValue = document.getElementById("Priority").value;
+                // 件名を取得
+                const SubjectValue = document.getElementById("Subject").value;
+                // コメントを取得
+                const DescriptionValue = document.getElementById("Description").value;
+                
+                var inputData = {};
+                inputData.AccountNumber = 'A0000001';
+                inputData.Priority = PriorityValue;
+                inputData.Subject = SubjectValue;
+                inputData.Description = DescriptionValue;
+                
+                // Rest ApexへパラメータをJSON形式に変換
+                var data = JSON.stringify( inputData );
+                
+                $.ajax({
+                    type: 'POST',
+                    crossOrigin: true,
+                    url: 'https://protocomdev-dev-ed.my.salesforce.com/services/apexrest/Case/',
+                    cache :false,
+                    headers: {"Authorization" : accToken, "Content-Type" : "application/json"},
+                    dataType: 'json',
+                    data : data,
+                    success : function (res) {
+                      if(res.length != 0){
+                            var formElement = document.getElementById('CaseForm');
+                            formElement.reset();
+                    
+                            var oldPastCase = document.getElementById('pastCase');
+                            var removeOldPastCase = oldPastCase.querySelectorAll('tr');
+                            
+                            for(var i = 1; i < removeOldPastCase.length; i++){
+                              removeOldPastCase[i].parentNode.removeChild(removeOldPastCase[i])
+                            }
+                            // template要素を取得
+                            var template = document.getElementById('template');
+                            for(var i = 0; i < res.length; i++){
+                              // template要素の内容を複製
+                              var clone = template.content.cloneNode(true);
+                              
+                              // 複製したtemplate要素にデータを挿入
+                              clone.querySelector('.CreatedDate').textContent = res[i].CreatedDate;
+                              clone.querySelector('.Priority').textContent = res[i].Priority;
+                              clone.querySelector('.Subject').textContent = res[i].Subject;
+                              clone.querySelector('.Description').textContent = res[i].Description;
+                              
+                              // div#containerの中に追加
+                              document.getElementById('pastCase').appendChild(clone);
+                            }
+                        }
+                    },
+                    error : function (data, errorThrown,status) {
+                        
+                    }
+                })
+            },
+            error : function (data, errorThrown,status) {
+            }
+        });
+    }
 </script>
