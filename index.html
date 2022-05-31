@@ -322,8 +322,13 @@
     window.onload = function(){
         // アクセストークン取得（リフレッシュトークンフロー） Ajax
         $.ajax({
-            
+            type: 'POST',
+            crossOrigin: true,
+            url: 'https://abcdeffhijklmnop-dev-ed.my.salesforce.com/services/oauth2/token',
+            dataType: 'json',
+            cache :false,
             success : function (connectData) {
+                console.log('アクセストークン' + connectData.access_token);
             }
         });
      }
