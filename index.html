@@ -333,43 +333,6 @@
             }
         });
      }
-                var accToken = 'Bearer ' + connectData.access_token;
-                $.ajax({
-                    type: 'GET',
-                    crossOrigin: true,
-                    url: 'https://abcdeffhijklmnop-dev-ed.my.salesforce.com/services/apexrest/Case/A0000001',
-                    dataType: 'json',
-                    cache :false,
-                    headers: {"Authorization" : accToken},
-                    success : function (res) {
-                        // データを取得できた場合
-                        if(res.length != 0){
-                            // template要素を取得
-                            var template = document.getElementById('template');
-                            // データの数分繰り返し
-                            for(var i = 0; i < res.length; i++){
-                                // template要素の内容を複製
-                                var clone = template.content.cloneNode(true);
-                                // 複製したtemplate要素にデータを挿入
-                                clone.querySelector('.CreatedDate').textContent = res[i].CreatedDate;
-                                clone.querySelector('.Priority').textContent = res[i].Priority;
-                                clone.querySelector('.Subject').textContent = res[i].Subject;
-                                clone.querySelector('.Description').textContent = res[i].Description;
-                                // div#containerの中に追加
-                                document.getElementById('pastCase').appendChild(clone);
-                              }
-                            }
-                          },
-                    error : function (data, errorThrown,status) {
-                        
-                    }
-                })
-                
-              },
-            error : function (data, errorThrown,status) {
-            }
-        });
-      }
 
     function send() {
         // アクセストークン取得（リフレッシュトークンフロー） Ajax
