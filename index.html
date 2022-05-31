@@ -322,14 +322,8 @@
     window.onload = function(){
         // アクセストークン取得（リフレッシュトークンフロー） Ajax
         $.ajax({
-            type: 'POST',
-            crossOrigin: true,
-            url: 'https://abcdeffhijklmnop-dev-ed.my.salesforce.com/services/oauth2/token',
-            dataType: 'json',
-            cache :false,
-            data : {"grant_type":"refresh_token","client_id":"3MVG9d8..z.hDcPIswHuvfI5yAimSNoHL7zt7ZMkzeordhJ1jo_ogvUAE1tpRUkBjt0ybcsCCoU4V7kbLsfUs", "client_secret":"3FC0B941D16A94FA16B3D639B42EFAE6003E666279856FAFD863E22A39D90523","refresh_token":"aPrxshT49BthlzI3ml_TFUc6kef_ZBAhAqFZUFCLNMrk8Sfc4FU83LfabWrCTOdLoeGhIdu02A=="},
+            
             success : function (connectData) {
-                console.log('アクセストークン' + connectData.access_token);
             }
         });
      }
